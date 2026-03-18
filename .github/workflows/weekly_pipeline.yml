@@ -12,8 +12,6 @@ jobs:
   run-pipeline:
     runs-on: ubuntu-latest
     permissions:
-      # Needed so the script can write refreshed tokens back to Secrets
-      secrets: write
       contents: read
 
     steps:
@@ -30,6 +28,8 @@ jobs:
 
       - name: Run analytics pipeline
         env:
+          IG_APP_ID: ${{ secrets.IG_APP_ID }}
+          IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_ACCOUNT_ID: ${{ secrets.IG_ACCOUNT_ID }}
           ETSY_API_KEY: ${{ secrets.ETSY_API_KEY }}
@@ -40,6 +40,7 @@ jobs:
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+          GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO: ${{ github.repository }}
         run: python src/main.py --skip-etsy  # Remove this flag once Etsy API is approved
