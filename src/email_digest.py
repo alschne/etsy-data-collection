@@ -399,7 +399,7 @@ def send_digest(
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"📊 Weekly Analytics — week ending {week_end}"
-    msg["From"] = config.EMAIL_SENDER
+    msg["From"] = f"Expressions Analytics Pipeline <{config.EMAIL_SENDER}>"
     msg["To"] = config.EMAIL_RECIPIENT
     msg.attach(MIMEText(html, "html"))
 
