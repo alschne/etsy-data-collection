@@ -214,11 +214,17 @@ def _build_listing_sales_map(receipts: list[dict]) -> dict[int, dict]:
 # ---------------------------------------------------------------------------
 
 def collect_etsy_stars(
-    week_start: datetime, week_end: datetime
+    week_start: datetime,
+    week_end: datetime,
+    prev_week_rows: list[dict] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Collect per-listing metrics for etsy_stars tab.
     Returns a list of row dicts, one per active auto-renewing listing.
+
+    prev_week_rows: list of dicts from last week's sheet rows (used to calculate
+    weekly deltas for views and favorites, since the API only returns lifetime totals).
+    Pass None or empty list on the first ever run — weekly deltas will be None.
     """
     print("  Fetching Etsy OAuth token...")
     access_token, new_refresh_token = get_access_token()
@@ -231,14 +237,35 @@ def collect_etsy_stars(
     receipts = _get_shop_receipts(access_token, week_start, week_end)
     sales_map = _build_listing_sales_map(receipts)
 
+    # Build a lookup of listing_id -> previous week's lifetime totals
+    prev_map: dict[int, dict] = {}
+    for prev_row in (prev_week_rows or []):
+        try:
+            lid = int(prev_row.get("listing_id", 0))
+            prev_map[lid] = prev_row
+        except (ValueError, TypeError):
+            pass
+
     rows = []
     for listing in listings:
         lid = listing["listing_id"]
         sales = sales_map.get(lid, {"orders": 0, "revenue": 0.0})
         orders = sales["orders"]
         revenue = round(sales["revenue"], 2)
-        views = listing.get("views", 0)
-        favorites = listing.get("num_favorers", 0)
+        lifetime_views = listing.get("views", 0)
+        lifetime_favorites = listing.get("num_favorers", 0)
+
+        # Calculate weekly deltas from lifetime totals
+        prev = prev_map.get(lid)
+        if prev:
+            prev_lifetime_views = int(prev.get("lifetime_views") or 0)
+            prev_lifetime_favs = int(prev.get("lifetime_favorites") or 0)
+            weekly_views = max(0, lifetime_views - prev_lifetime_views)
+            weekly_favorites = max(0, lifetime_favorites - prev_lifetime_favs)
+        else:
+            # First time we've seen this listing — no delta available
+            weekly_views = None
+            weekly_favorites = None
 
         # Price formatting
         price_data = listing.get("price", {})
@@ -247,8 +274,8 @@ def collect_etsy_stars(
         else:
             price = float(price_data or 0)
 
-        # CR% = orders / views (lifetime, not just this week — weekly views not available)
-        cr_pct = round(orders / views * 100, 2) if views else None
+        # CR% = weekly_orders / weekly_views (meaningful only when we have weekly views)
+        cr_pct = round(orders / weekly_views * 100, 2) if weekly_views else None
 
         rows.append({
             "week_end_date": week_end.strftime("%Y-%m-%d"),
@@ -257,8 +284,10 @@ def collect_etsy_stars(
             "listing_url": listing.get("url", ""),
             "price": round(price, 2),
             "quantity_available": listing.get("quantity", 0),
-            "lifetime_views": views,
-            "lifetime_favorites": favorites,
+            "lifetime_views": lifetime_views,
+            "weekly_views": weekly_views,
+            "lifetime_favorites": lifetime_favorites,
+            "weekly_favorites": weekly_favorites,
             "weekly_orders": orders,
             "weekly_revenue": revenue,
             "weekly_cr_pct": cr_pct,
@@ -279,10 +308,12 @@ ETSY_STARS_HEADERS = [
     "price",
     "quantity_available",
     "lifetime_views",
+    "weekly_views",        # calculated: lifetime_views delta vs previous week
     "lifetime_favorites",
+    "weekly_favorites",    # calculated: lifetime_favorites delta vs previous week
     "weekly_orders",
     "weekly_revenue",
-    "weekly_cr_pct",
+    "weekly_cr_pct",       # weekly_orders / weekly_views (None if no views this week)
 ]
 
 
