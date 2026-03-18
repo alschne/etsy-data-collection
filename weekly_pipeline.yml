@@ -42,4 +42,4 @@ jobs:
           EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO: ${{ github.repository }}
-        run: python src/main.py
+        run: python src/main.py --skip-etsy  # Remove this flag once Etsy API is approved
