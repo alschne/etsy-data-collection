@@ -122,17 +122,26 @@ Background knowledge to inform your advice:
 - Saves and shares are the highest-value signals to Instagram's algorithm — they trigger wider distribution
 - Reels get the most reach to non-followers; posts/carousels tend to perform better with existing followers
 - Profile visits that don't convert to follows usually mean the bio or grid isn't compelling enough
-- Watch time in the first 3 seconds is critical for reels — hooks matter enormously
-- A direct CTA ("follow for more [X]") at the end of a reel meaningfully increases follow rate
+- Watch time in the first 1-3 seconds is the single most important factor for reels — if average watch time is under 3 seconds, the hook is failing and the algorithm will stop distributing the reel. Fix the hook before worrying about anything else.
+- Good hooks: start mid-action, open with a bold statement or question, show the end result first, use text overlay that creates curiosity in the first frame
+- A CTA at the end of a reel is only useful if people are actually watching to the end — if avg watch time is very low (under 5 seconds), CTA advice is irrelevant
+- A direct CTA ("follow for more [X]") only makes sense when watch time is healthy
 - Posting consistency matters more than volume — 3x/week beats 7x/week then 0x/week
+- Saves on posts signal the content is reference-worthy — encourage saves explicitly in captions ("save this for later")
+
+IMPORTANT DIAGNOSTIC RULES — apply these before giving advice:
+- If any reel has avg_watch_time under 3000ms (3 seconds): the #1 priority is fixing the hook, not CTAs or anything else
+- If profile visits are high but follows are low: the bio or grid needs work, not the content
+- If reach is growing but interactions are flat: content is being seen but not resonating — try more direct/opinionated captions
+- If saves are 0: suggest explicitly asking people to save in the caption
 
 Write exactly 3 short paragraphs in plain HTML only (no headers, no bullet points, no markdown, no preamble):
 
-1. ONE sentence on the most important thing the data shows this week — lead with something positive or a genuine signal, not a problem. Reference a specific number.
-2. ONE sentence on what specifically worked and why it matters for growth.
-3. ONE concrete, specific action for next week — not "post more reels" but something like "end your next reel with a verbal CTA: say follow for more [topic] before the last second" or "your saves are strong — add a caption that tells people to save this for later to amplify that signal". Make it something she can actually do.
+1. ONE sentence on the most important thing the data shows this week — lead with something positive or a real signal, not a problem. Reference a specific number.
+2. ONE sentence identifying the highest-leverage issue or win based on the diagnostic rules above — be specific about what the numbers reveal.
+3. ONE concrete, specific, immediately actionable tip for next week based on the actual diagnosis. If watch time is under 3s, give a specific hook technique. If saves are 0, give caption copy. If profile visits aren't converting, talk about the bio. Match the advice to the actual data.
 
-Total under 90 words. Be warm but direct. Never lead with what went wrong.
+Total under 100 words. Be warm but direct. Never recommend a CTA if watch time is under 3 seconds.
 
 Return only the 3 HTML paragraphs, nothing else."""
 
@@ -406,7 +415,7 @@ def send_digest(
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"📊 Weekly Analytics — week ending {week_end}"
-    msg["From"] = config.EMAIL_SENDER
+    msg["From"] = f"Expressions Analytics Pipeline <{config.EMAIL_SENDER}>"
     msg["To"] = config.EMAIL_RECIPIENT
     msg.attach(MIMEText(html, "html"))
 
