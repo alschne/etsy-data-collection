@@ -258,13 +258,30 @@ def build_html(
     listing_rows_html = ""
     for r in top_listings:
         if (r.get("weekly_orders") or 0) > 0:
-            listing_rows_html += f"""
-        <tr style="border-bottom:1px solid #f5f5f5">
-          <td style="padding:7px 8px;font-size:13px">{str(r.get('listing_name',''))[:45]}</td>
-          <td style="padding:7px 8px;text-align:right;font-size:13px">{_fmt(r.get('weekly_orders'))}</td>
-          <td style="padding:7px 8px;text-align:right;font-size:13px">{_fmt(r.get('weekly_revenue'), prefix='$', decimals=2)}</td>
-          <td style="padding:7px 8px;text-align:right;font-size:13px;color:#aaa">{_fmt(r.get('weekly_views'))} views</td>
-        </tr>"""
+            listing_rows_html += (
+                '<tr style="border-bottom:1px solid #f5f5f5">'
+                f'<td style="padding:7px 8px;font-size:13px">{str(r.get("listing_name",""))[:45]}</td>'
+                f'<td style="padding:7px 8px;text-align:right;font-size:13px">{_fmt(r.get("weekly_orders"))}</td>'
+                f'<td style="padding:7px 8px;text-align:right;font-size:13px">{_fmt(r.get("weekly_revenue"), prefix="$", decimals=2)}</td>'
+                f'<td style="padding:7px 8px;text-align:right;font-size:13px;color:#aaa">{_fmt(r.get("weekly_views"))} views</td>'
+                '</tr>'
+            )
+
+    if listing_rows_html:
+        listing_table_html = (
+            '<p style="font-size:12px;color:#888;margin-bottom:6px">Top listings with sales this week</p>'
+            '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px">'
+            '<tr style="background:#fff8f0;font-size:12px;color:#888">'
+            '<th style="padding:6px 8px;text-align:left;font-weight:600">Listing</th>'
+            '<th style="padding:6px 8px;text-align:right;font-weight:600">Orders</th>'
+            '<th style="padding:6px 8px;text-align:right;font-weight:600">Revenue</th>'
+            '<th style="padding:6px 8px;text-align:right;font-weight:600">Views</th>'
+            '</tr>'
+            + listing_rows_html +
+            '</table>'
+        )
+    else:
+        listing_table_html = ""
 
     etsy_note = '<em style="font-size:12px;color:#aaa">(skipped this run)</em>' if etsy_skipped else ""
     etsy_content = ""
@@ -278,17 +295,7 @@ def build_html(
       <td style="padding:8px;text-align:right;font-size:15px;font-weight:700">{_fmt(total_etsy_revenue, prefix='$', decimals=2)}</td>
     </tr>
   </table>
-  {"" if not listing_rows_html else f"""
-  <p style="font-size:12px;color:#888;margin-bottom:6px">Top listings with sales this week</p>
-  <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px">
-    <tr style="background:#fff8f0;font-size:12px;color:#888">
-      <th style="padding:6px 8px;text-align:left;font-weight:600">Listing</th>
-      <th style="padding:6px 8px;text-align:right;font-weight:600">Orders</th>
-      <th style="padding:6px 8px;text-align:right;font-weight:600">Revenue</th>
-      <th style="padding:6px 8px;text-align:right;font-weight:600">Views</th>
-    </tr>
-    {listing_rows_html}
-  </table>"""}"""
+  {listing_table_html}"""
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -399,7 +406,7 @@ def send_digest(
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"📊 Weekly Analytics — week ending {week_end}"
-    msg["From"] = f"Expressions Analytics Pipeline <{config.EMAIL_SENDER}>"
+    msg["From"] = config.EMAIL_SENDER
     msg["To"] = config.EMAIL_RECIPIENT
     msg.attach(MIMEText(html, "html"))
 
