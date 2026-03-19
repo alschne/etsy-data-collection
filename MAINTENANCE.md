@@ -115,6 +115,42 @@ compare against). This is expected.
 
 ---
 
+## Triggering review emails manually
+
+**From the command line:**
+```bash
+python src/review_runner.py --quarterly          # current quarter
+python src/review_runner.py --annual             # current year
+python src/review_runner.py --all                # both (same as Dec 31)
+python src/review_runner.py --quarterly --q 1 --year 2026  # specific quarter
+python src/review_runner.py --annual --year 2025            # specific year
+```
+
+**From GitHub Actions:**
+Go to Actions → Weekly Analytics Pipeline → Run workflow → select mode:
+- `quarterly` — sends current quarter review
+- `annual` — sends current year review
+- `all_reviews` — sends both (use to test Dec 31 behavior)
+
+---
+
+## Review email schedule
+
+| Review | Trigger date | What it covers |
+|--------|-------------|----------------|
+| Q1 | March 31 | January 1 – March 31 |
+| Q2 | June 30 | April 1 – June 30 |
+| Q3 | September 30 | July 1 – September 30 |
+| Q4 | December 31 | October 1 – December 31 |
+| Annual | December 31 | Full calendar year |
+
+Q4 and Annual both send on December 31 — two separate emails.
+
+The review emails read directly from your Google Sheet, so any historical
+data you've manually added will be included automatically.
+
+---
+
 ## Troubleshooting common errors
 
 ### `400 Client Error` on Instagram insights

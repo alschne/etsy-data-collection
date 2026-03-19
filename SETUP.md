@@ -245,7 +245,34 @@ Watch the logs. If anything fails, the error message will tell you exactly which
 
 ---
 
-## Step 8 — Enable Etsy once API is approved
+## Step 8 — Test the review emails
+
+Once the weekly pipeline is working you can test the quarterly and annual reviews:
+
+```bash
+# Test quarterly review for current quarter
+python src/review_runner.py --quarterly
+
+# Test annual review for current year
+python src/review_runner.py --annual
+
+# Test both (simulates Dec 31)
+python src/review_runner.py --all
+
+# Test a specific quarter/year
+python src/review_runner.py --quarterly --q 1 --year 2026
+python src/review_runner.py --annual --year 2025
+```
+
+You can also trigger them from GitHub Actions → Run workflow → select the mode dropdown.
+
+> **Note:** Review emails read all historical data from your Google Sheet, so any data
+> you've manually added will be included. The more weeks of data in the sheet,
+> the more meaningful the insights will be.
+
+---
+
+## Step 9 — Enable Etsy once API is approved
 
 When your Etsy API access is approved:
 1. Run `python scripts/etsy_auth.py` to get your refresh token

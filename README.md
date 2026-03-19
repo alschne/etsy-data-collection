@@ -6,11 +6,19 @@ and sends a weekly email digest with AI-generated insights.
 
 ## What this does
 
-Every Monday at 8AM UTC the pipeline:
+**Every Monday at 8AM UTC** the weekly pipeline:
 1. Pulls last week's Instagram account metrics → writes to `ig_pulse` tab
 2. Pulls per-post metrics for posts published last week → writes to `ig_stars` tab
 3. Pulls per-listing sales data for active auto-renewing Etsy listings → writes to `etsy_stars` tab
 4. Sends a weekly email digest with metrics, week-over-week comparisons, and AI-generated insights
+
+**Quarterly and annually** the review pipeline:
+- **March 31** — Q1 review email (Jan–Mar)
+- **June 30** — Q2 review email (Apr–Jun)
+- **September 30** — Q3 review email (Jul–Sep)
+- **December 31** — Q4 review email (Oct–Dec) + Annual review email (full year)
+
+Review emails include aggregated totals, top performing posts, Etsy summary, and AI-generated strategic insights.
 
 ## Repo structure
 
@@ -18,13 +26,15 @@ Every Monday at 8AM UTC the pipeline:
 .
 ├── .github/
 │   └── workflows/
-│       └── weekly_pipeline.yml   # GitHub Actions cron schedule
+│       └── weekly_pipeline.yml   # GitHub Actions — weekly + quarterly + annual schedules
 ├── src/
-│   ├── main.py                   # Entry point — orchestrates all collectors
+│   ├── main.py                   # Entry point — weekly pipeline
+│   ├── review_runner.py          # Entry point — quarterly and annual reviews
 │   ├── ig_collector.py           # Instagram Graph API logic
 │   ├── etsy_collector.py         # Etsy Open API v3 logic
 │   ├── sheets.py                 # Google Sheets read/write helpers
 │   ├── email_digest.py           # Weekly email with AI insights (Gemini)
+│   ├── review_digest.py          # Quarterly and annual review emails
 │   └── config.py                 # Centralised config — reads from env vars
 ├── scripts/
 │   ├── ig_auth.py                # One-time Instagram OAuth setup
