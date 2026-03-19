@@ -207,7 +207,7 @@ def _get_media_in_window(
         page = resp.json()
         stop = False
         for item in page.get("data", []):
-            ts = datetime.fromisoformat(item["timestamp"].replace("Z", "+00:00"))
+            ts = datetime.fromisoformat(item["timestamp"].replace("Z", "+00:00")).astimezone(MOUNTAIN_TZ)
             if week_start <= ts <= week_end:
                 all_media.append(item)
             elif ts < week_start:
@@ -278,7 +278,7 @@ def collect_ig_stars(week_start: datetime, week_end: datetime) -> list[dict[str,
     posts = _get_media_in_window(token, week_start, week_end)
     rows = []
     for post in posts:
-        ts = datetime.fromisoformat(post["timestamp"].replace("Z", "+00:00"))
+        ts = datetime.fromisoformat(post["timestamp"].replace("Z", "+00:00")).astimezone(MOUNTAIN_TZ)
         m = post.get("_metrics", {})
         is_reel = _is_reel(post)
         likes = m.get("likes", 0)
