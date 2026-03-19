@@ -14,6 +14,9 @@ Deprecated and NOT used:
 
 import requests
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
+MOUNTAIN_TZ = ZoneInfo("America/Denver")
 from typing import Any
 
 import config
@@ -297,8 +300,8 @@ def collect_ig_stars(week_start: datetime, week_end: datetime) -> list[dict[str,
             "shares": shares,
             "profile_visits": m.get("profile_visits", 0),
             "follows": m.get("follows", 0),
-            "avg_watch_time_ms": m.get("ig_reels_avg_watch_time") if is_reel else None,
-            "total_watch_time_ms": m.get("ig_reels_video_view_total_time") if is_reel else None,
+            "avg_watch_time_ms": m.get("ig_reels_avg_watch_time") if is_reel else None,  # milliseconds, converted in email
+            "total_watch_time_ms": m.get("ig_reels_video_view_total_time") if is_reel else None,  # milliseconds
         })
     return rows
 
